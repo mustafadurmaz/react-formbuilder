@@ -1,0 +1,9 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/": "pages/index.js",
+  "/uikit/formlayout": "pages/uikit/formlayout.js",
+  "/uikit/input": "pages/uikit/input.js",
+  "/uikit/floatlabel": "pages/uikit/floatlabel.js"
+}
