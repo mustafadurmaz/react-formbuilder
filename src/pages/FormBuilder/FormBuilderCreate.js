@@ -45,14 +45,14 @@ function FormBuilderCreate() {
     dialogFuncMap[`${name}`](false);
   };
 
-  useLayoutEffect(() => {
-    if (params.state) {
-      localStorage.setItem('data', JSON.stringify(params.state.data));
-      localStorage.setItem('formbuilderId', JSON.stringify(params.state.id));
-    }
-    setFormName(JSON.parse(localStorage.getItem('data')).name);
-    setParentId(JSON.parse(localStorage.getItem('formbuilderId')));
-  }, []);
+  // useLayoutEffect(() => {
+  //   if (params.state) {
+  //     localStorage.setItem('data', JSON.stringify(params.state.data));
+  //     localStorage.setItem('formbuilderId', JSON.stringify(params.state.id));
+  //   }
+  //   setFormName(JSON.parse(localStorage.getItem('data')).name);
+  //   setParentId(JSON.parse(localStorage.getItem('formbuilderId')));
+  // }, []);
 
   useEffect(() => {
     FormPropertiesService.getProperties(paramsId.id)

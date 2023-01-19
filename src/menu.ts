@@ -5,7 +5,7 @@ export default [
     icon: 'pi pi-fw pi-home',
     items: [
       { label: 'Dashboard', icon: 'pi pi-fw pi-chart-bar', to: '/' },
-      { label: 'Form Tree', icon: 'pi pi-fw pi-list', to: '/formtree' },
+      { label: 'Form Builder', icon: 'pi pi-fw pi-list', to: '/formbuilder' },
     ],
   },
   // {

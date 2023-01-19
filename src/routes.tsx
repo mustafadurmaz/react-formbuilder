@@ -18,11 +18,11 @@ export default function Router() {
       element: <AppLayout />,
       children: [
         { path: "", element: <Dashboard /> },
-        { path: "formtree", element: <SetFormTree /> },
+        { path: "formbuilder", element: <FormBuilderCreate /> },
       ],
     },
     {
-      path: "/formbuilder",
+      path: "/formtree",
       element: <AppLayout />,
       children: [{ path: "create", element: <FormBuilderCreate/> }],
     },

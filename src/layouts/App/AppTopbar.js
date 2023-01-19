@@ -76,7 +76,7 @@ const AppTopbar = (props) => {
 
       <div className="topbar-right">
         <ul className="topbar-menu">
-          {auth.auth.auth ? (
+         
             <>
               <li className="search-item">
                 <button
@@ -172,7 +172,7 @@ const AppTopbar = (props) => {
                     alt="diamond-layout"
                     className="profile-image"
                   />
-                  <span className="profile-name">{auth.auth.name}</span>
+                  <span className="profile-name">User1</span>
                 </button>
                 <ul className="profile-menu fade-in-up">
                   <li>
@@ -222,11 +222,7 @@ const AppTopbar = (props) => {
                 </button>
               </li>
             </>
-          ) : (
-            <li className="right-sidebar-item">
-              <Button label="Login" onClick={Login} />
-            </li>
-          )}
+         
         </ul>
       </div>
     </div>
