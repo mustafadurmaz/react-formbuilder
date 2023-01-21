@@ -6,7 +6,7 @@ import AppLayout from "./layouts/App/App";
 //pages
 import Dashboard from "./layouts/App/components/Dashboard";
 import { NotFound } from "./layouts/App/pages/NotFound";
-import FormBuilderCreate from "./pages/FormBuilder/FormBuilderCreate";
+import FormBuilder from "./pages/FormBuilder/FormBuilder";
 import FormGenerateGeneral from "./pages/FormGenerateGeneral/FormGenerateGeneral";
 import SetFormTree from "./pages/FormTree/SetFormTree";
 // import Main from './pages/Main';
@@ -18,18 +18,18 @@ export default function Router() {
       element: <AppLayout />,
       children: [
         { path: "", element: <Dashboard /> },
-        { path: "formbuilder", element: <FormBuilderCreate /> },
+        { path: "formbuilder", element: <FormBuilder /> },
       ],
     },
     {
       path: "/formtree",
       element: <AppLayout />,
-      children: [{ path: "create", element: <FormBuilderCreate/> }],
+      children: [{ path: "create", element: <FormBuilder/> }],
     },
     {
       path: "/formbuilder",
       element: <AppLayout />,
-      children: [{ path: ":id", element: <FormBuilderCreate/> }],
+      children: [{ path: ":id", element: <FormBuilder/> }],
     },
     {
       path: "/formgenerate",
