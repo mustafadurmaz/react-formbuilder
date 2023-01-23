@@ -1,23 +1,26 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Droppable } from 'react-beautiful-dnd';
-import DraggableItem from './DraggableItem';
-import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { Checkbox } from 'primereact/checkbox';
-import { Calendar } from 'primereact/calendar';
-import { Dropdown } from 'primereact/dropdown';
-import { RadioButton } from 'primereact/radiobutton';
-import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
+import React, { useEffect, useState, useRef } from "react";
+import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
+import { Checkbox } from "primereact/checkbox";
+import { Calendar } from "primereact/calendar";
+import { Dropdown } from "primereact/dropdown";
+import { RadioButton } from "primereact/radiobutton";
+import { Button } from "primereact/button";
+import { Dialog } from "primereact/dialog";
+import { Sidebar } from "primereact/sidebar";
+import { useTranslation } from "react-i18next";
+import { Droppable } from "react-beautiful-dnd";
 
-import CitiesComponent from './FormComponents/CitiesComponent';
-import GenderComponent from './FormComponents/GenderComponent';
+import DraggableItem from "./DraggableItem";
+import CitiesComponent from "./FormComponents/CitiesComponent";
+import GenderComponent from "./FormComponents/GenderComponent";
+// import SpaceField from "../FormComponents/SpaceField/SpaceField";
+// import ContactField from "../FormComponents/ContactField/ContactField";
 
 const InputComponent = (props) => {
   console.log(props);
-  console.log(props.item.rules.required);
-  const [displayResponsive, setDisplayResponsive] = useState(false);
-  const [position, setPosition] = useState('center');
+  const [visibleRight, setVisibleRight] = useState(false);
+  const { t } = useTranslation(["common"]);
 
   //Form property sıralama indeksi
   useEffect(() => {
@@ -28,116 +31,127 @@ const InputComponent = (props) => {
     });
   }, [props.index]);
 
-  const dialogFuncMap = {
-    displayResponsive: setDisplayResponsive,
-  };
-  const onClick = (name, position) => {
-    dialogFuncMap[`${name}`](true);
-
-    if (position) {
-      setPosition(position);
-    }
-  };
-
-  const onHide = (name) => {
-    dialogFuncMap[`${name}`](false);
-  };
-
-  const renderFooter = (name) => {
-    return (
-      <div>
-        <Button
-          label="Cancel"
-          icon="pi pi-times"
-          onClick={() => onHide(name)}
-          className="p-button-text"
-        />
-        <Button
-          label="Save"
-          icon="pi pi-check"
-          onClick={() => onHide(name)}
-          autoFocus
-        />
-      </div>
-    );
-  };
   return (
     <div key={props.index} className="field">
-      <Dialog
-        header="Details"
-        visible={displayResponsive}
-        onHide={() => onHide('displayResponsive')}
-        breakpoints={{ '960px': '75vw' }}
-        style={{ width: '30vw' }}
-        footer={renderFooter('displayResponsive')}
+      <Sidebar
+        visible={visibleRight}
+        position="right"
+        style={{ width: "25%" }}
+        onHide={() => setVisibleRight(false)}
       >
-        <div>
-          <InputText
-            placeholder="Label"
-            className="block mb-2"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].label = e.target.value;
-                return temp;
-              });
-            }}
-            value={props.item.label}
-          />
+        <div className="formgrid grid mt-6">
+          <div className="field col-12">
+            <h5 className="required" style={{ marginBottom: "0.5em" }}>
+              {t("Label")}
+            </h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].label = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.label}
+              style={{ width: "100%" }}
+            />
+          </div>
 
-          <InputText
-            placeholder="Placeholder"
-            className="block mb-2"
-            onChange={(e) => {
+          <div className="field col-12">
+            <h5 style={{ marginBottom: "0.5em" }}>{t("Placeholder")}</h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].placeholder = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.placeholder}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="field col-12">
+            <h5 style={{ marginBottom: "0.5em" }}>{t("Default Value")}</h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].defaultValue = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.defaultValue}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="field col-12">
+            <Checkbox
+              inputId="cb1"
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].rules.required =
+                    !temp[props.index].rules.required;
+                  return temp;
+                });
+              }}
+              checked={props.item.rules.required}
+            ></Checkbox>
+            <span className="ml-3 font-semibold text-xl">Required</span>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-content-end">
+          <Button
+            label="Clear Fields"
+            className="p-button-secondary"
+            icon="pi pi-delete-left"
+            onClick={() => {
               props.setItems((prevValue) => {
                 const temp = [...prevValue];
-                temp[props.index].placeholder = e.target.value;
+                temp[props.index].label = "";
+                temp[props.index].placeholder = "";
+                temp[props.index].defaultValue = "";
+                temp[props.index].rules.required = false;
                 return temp;
               });
             }}
-            value={props.item.placeholder}
-          />
-          <InputText
-            placeholder="Default Value"
-            className="block mb-2"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].defaultValue = e.target.value;
-                return temp;
-              });
-            }}
-            value={props.item.defaultValue}
+            autoFocus
           />
         </div>
-        <div className="my-2">
-          <Checkbox
-            inputId="cb1"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].rules.required =
-                  !temp[props.index].rules.required;
-                return temp;
-              });
-            }}
-            checked={props.item.rules.required}
-          ></Checkbox>
-          <label htmlFor="cb1" className="p-checkbox-label ml-2">
-            isRequired
-          </label>
-        </div>
-      </Dialog>
+      </Sidebar>
 
       {/* <InputText disabled placeholder={props.item.label ? props.item.label :"Text"} style={{ width: 250 }} /> */}
-      <InputText disabled placeholder="Text" style={{ width: 250 }} />
+      <div className="formgrid">
+        <div className="field">
+          <h5>{props.item.label ? props.item.label : "Label"}</h5>
+          <InputText disabled placeholder="Text" style={{ width: "40%" }} />
+          <Button
+            className="p-button-rounded p-button-sm p-button-success ml-3"
+            icon="pi pi-pencil"
+            onClick={() => setVisibleRight(true)}
+          />
+          <Button
+            icon="pi pi-trash"
+            className="p-button-rounded p-button-danger ml-2"
+            onClick={() => {
+              const list = [...props.items];
+              list.splice(props.index, 1);
+              props.setItems(list);
+            }}
+          />
+        </div>
+      </div>
 
-      <div className="flex justify-content-between mt-2">
+      {/* <div className="flex justify-content-between mt-2">
         <div>
           <Button
             className="p-button-rounded p-button-sm  p-button-secondary"
             label="Details"
-            onClick={() => onClick('displayResponsive')}
+            onClick={() => setVisibleRight(true)}
           />
         </div>
         {!props.item._id ? (
@@ -170,15 +184,15 @@ const InputComponent = (props) => {
             ></Checkbox>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };
 
 const InputTextareaComponent = (props) => {
   console.log(props);
-  const [displayResponsive, setDisplayResponsive] = useState(false);
-  const [position, setPosition] = useState('center');
+  const [visibleRight, setVisibleRight] = useState(false);
+  const { t } = useTranslation(["common"]);
 
   //Form property sıralama indeksi
   useEffect(() => {
@@ -189,110 +203,127 @@ const InputTextareaComponent = (props) => {
     });
   }, [props.index]);
 
-  const dialogFuncMap = {
-    displayResponsive: setDisplayResponsive,
-  };
-  const onClick = (name, position) => {
-    dialogFuncMap[`${name}`](true);
-
-    if (position) {
-      setPosition(position);
-    }
-  };
-
-  const onHide = (name) => {
-    dialogFuncMap[`${name}`](false);
-  };
-
-  const renderFooter = (name) => {
-    return (
-      <div>
-        <Button
-          label="Cancel"
-          icon="pi pi-times"
-          onClick={() => onHide(name)}
-          className="p-button-text"
-        />
-        <Button
-          label="Save"
-          icon="pi pi-check"
-          onClick={() => onHide(name)}
-          autoFocus
-        />
-      </div>
-    );
-  };
   return (
     <div key={props.index} className="field">
-      <Dialog
-        header="Details"
-        visible={displayResponsive}
-        onHide={() => onHide('displayResponsive')}
-        breakpoints={{ '960px': '75vw' }}
-        style={{ width: '30vw' }}
-        footer={renderFooter('displayResponsive')}
+      <Sidebar
+        visible={visibleRight}
+        position="right"
+        style={{ width: "25%" }}
+        onHide={() => setVisibleRight(false)}
       >
-        <div>
-          <InputText
-            placeholder="Label"
-            className="block mb-2"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].label = e.target.value;
-                return temp;
-              });
-            }}
-            value={props.item.label}
-          />
+        <div className="formgrid grid mt-6">
+          <div className="field col-12">
+            <h5 className="required" style={{ marginBottom: "0.5em" }}>
+              {t("Label")}
+            </h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].label = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.label}
+              style={{ width: "100%" }}
+            />
+          </div>
 
-          <InputText
-            placeholder="Placeholder"
-            className="block mb-2"
-            onChange={(e) => {
+          <div className="field col-12">
+            <h5 style={{ marginBottom: "0.5em" }}>{t("Placeholder")}</h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].placeholder = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.placeholder}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="field col-12">
+            <h5 style={{ marginBottom: "0.5em" }}>{t("Default Value")}</h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].defaultValue = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.defaultValue}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="field col-12">
+            <Checkbox
+              inputId="cb2"
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].rules.required =
+                    !temp[props.index].rules.required;
+                  return temp;
+                });
+              }}
+              checked={props.item.rules.required}
+            ></Checkbox>
+            <span className="ml-3 font-semibold text-xl">Required</span>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-content-end">
+          <Button
+            label="Clear Fields"
+            className="p-button-secondary"
+            icon="pi pi-delete-left"
+            onClick={() => {
               props.setItems((prevValue) => {
                 const temp = [...prevValue];
-                temp[props.index].placeholder = e.target.value;
+                temp[props.index].label = "";
+                temp[props.index].placeholder = "";
+                temp[props.index].defaultValue = "";
+                temp[props.index].rules.required = false;
                 return temp;
               });
             }}
-            value={props.item.placeholder}
-          />
-          <InputText
-            placeholder="Default Value"
-            className="block mb-2"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].defaultValue = e.target.value;
-                return temp;
-              });
-            }}
-            value={props.item.defaultValue}
+            autoFocus
           />
         </div>
-        <div className="my-2">
-          <Checkbox
-            inputId="cb2"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].rules.required =
-                  !temp[props.index].rules.required;
-                return temp;
-              });
+      </Sidebar>
+
+      <div className="formgrid">
+        <div className="field">
+          <h5>{props.item.label ? props.item.label : "Label"}</h5>
+          <InputTextarea
+            disabled
+            placeholder="Text Area"
+            style={{ width: "40%" }}
+          />
+          <Button
+            className="p-button-rounded p-button-sm p-button-success ml-3"
+            icon="pi pi-pencil"
+            onClick={() => setVisibleRight(true)}
+          />
+          <Button
+            icon="pi pi-trash"
+            className="p-button-rounded p-button-danger ml-2"
+            onClick={() => {
+              const list = [...props.items];
+              list.splice(props.index, 1);
+              props.setItems(list);
             }}
-            checked={props.item.rules.required}
-          ></Checkbox>
-          <label htmlFor="cb2" className="p-checkbox-label ml-2">
-            isRequired
-          </label>
+          />
         </div>
-      </Dialog>
+      </div>
 
-      <InputTextarea disabled placeholder="Text Area" style={{ width: 250 }} />
+      {/* <InputTextarea disabled placeholder="Text Area" style={{ width: 250 }} /> */}
 
-      <div className="flex justify-content-between mt-2">
+      {/* <div className="flex justify-content-between mt-2">
         <div>
           <Button
             className="p-button-rounded p-button-sm  p-button-secondary"
@@ -330,7 +361,7 @@ const InputTextareaComponent = (props) => {
             ></Checkbox>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -338,7 +369,10 @@ const InputTextareaComponent = (props) => {
 const DropDownComponent = (props) => {
   const [displayResponsive, setDisplayResponsive] = useState(false);
   const [displayResponsive2, setDisplayResponsive2] = useState(false);
-  const [position, setPosition] = useState('center');
+  const [position, setPosition] = useState("center");
+  const [visibleRight, setVisibleRight] = useState(false);
+  const [visibleOptions, setVisibleOptions] = useState(false);
+  const { t } = useTranslation(["common"]);
 
   //Form property sıralama indeksi
   useEffect(() => {
@@ -349,80 +383,32 @@ const DropDownComponent = (props) => {
     });
   }, [props.index]);
 
-  const dialogFuncMap = {
-    displayResponsive: setDisplayResponsive,
-  };
-  const dialogFuncMap2 = {
-    displayResponsive2: setDisplayResponsive2,
-  };
-  const onClick = (name, position) => {
-    dialogFuncMap[`${name}`](true);
-
-    if (position) {
-      setPosition(position);
-    }
-  };
-  const onClick2 = (name, position) => {
-    dialogFuncMap2[`${name}`](true);
-
-    if (position) {
-      setPosition(position);
-    }
-  };
-  const onHide = (name) => {
-    dialogFuncMap[`${name}`](false);
-  };
-  const onHide2 = (name) => {
-    dialogFuncMap2[`${name}`](false);
-  };
-
-  const renderFooter = (name) => {
-    return (
-      <div>
-        <Button
-          label="Cancel"
-          icon="pi pi-times"
-          onClick={() => onHide(name)}
-          className="p-button-text"
-        />
-        <Button
-          label="Save"
-          icon="pi pi-check"
-          onClick={() => onHide(name)}
-          autoFocus
-        />
-      </div>
-    );
-  };
-
   const renderFooter2 = (name) => {
     return (
       <div>
         <Button
           label="Cancel"
           icon="pi pi-times"
-          onClick={() => onHide2(name)}
+          onClick={() => setVisibleOptions(false)}
           className="p-button-text"
         />
         <Button
           label="Save"
           icon="pi pi-check"
-          onClick={() => {
-            props.setItems((prevValue) => {
+          onClick={async () => {
+            await props.setItems((prevValue) => {
               const temp = [...prevValue];
               temp[props.index].options = inputList;
               return temp;
             });
-            setTimeout(() => {
-              onHide2(name);
-            }, 500);
+            await setVisibleOptions(false);
           }}
           autoFocus
         />
       </div>
     );
   };
-  const [inputList, setInputList] = useState([{ optionsName: '' }]);
+  const [inputList, setInputList] = useState([{ optionsName: "" }]);
   console.log(props.item.options.length);
   useEffect(() => {
     if (props.item.options.length > 0) {
@@ -447,11 +433,11 @@ const DropDownComponent = (props) => {
 
   // handle click event of the Add button
   const handleAddClick = () => {
-    setInputList([...inputList, { optionsName: '' }]);
+    setInputList([...inputList, { optionsName: "" }]);
   };
   return (
     <div key={props.index} className="field">
-      <Dropdown disabled placeholder="Dropdown" style={{ width: 250 }} />
+      {/* <Dropdown disabled placeholder="Dropdown" style={{ width: 250 }} />
       <div className="flex justify-content-between mt-2">
         <div>
           <Button
@@ -490,107 +476,156 @@ const DropDownComponent = (props) => {
             ></Checkbox>
           </div>
         )}
+      </div> */}
+
+      <div className="formgrid">
+        <div className="field">
+          <h5>{props.item.label ? props.item.label : "Label"}</h5>
+          <Dropdown disabled placeholder="DropDown" style={{ width: "40%" }} />
+          <Button
+            className="p-button-rounded p-button-sm p-button-success ml-3"
+            icon="pi pi-pencil"
+            onClick={() => setVisibleRight(true)}
+          />
+          <Button
+            icon="pi pi-trash"
+            className="p-button-rounded p-button-danger ml-2"
+            onClick={() => {
+              const list = [...props.items];
+              list.splice(props.index, 1);
+              props.setItems(list);
+            }}
+          />
+        </div>
       </div>
 
-      <Dialog
-        header="Details"
-        visible={displayResponsive}
-        onHide={() => onHide('displayResponsive')}
-        breakpoints={{ '960px': '75vw' }}
-        style={{ width: '30vw' }}
-        footer={renderFooter('displayResponsive')}
+      <Sidebar
+        visible={visibleRight}
+        position="right"
+        style={{ width: "25%" }}
+        onHide={() => setVisibleRight(false)}
       >
-        <div>
-          <InputText
-            placeholder="Label"
-            className="block mb-2"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].label = e.target.value;
-                return temp;
-              });
-            }}
-            value={props.item.label}
-          />
+        <div className="formgrid grid mt-6">
+          <div className="field col-12">
+            <h5 className="required" style={{ marginBottom: "0.5em" }}>
+              {t("Label")}
+            </h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].label = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.label}
+              style={{ width: "100%" }}
+            />
+          </div>
 
-          <InputText
-            placeholder="Placeholder"
-            className="block mb-2"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].placeholder = e.target.value;
-                return temp;
-              });
-            }}
-            value={props.item.placeholder}
+          <div className="field col-12">
+            <h5 style={{ marginBottom: "0.5em" }}>{t("Placeholder")}</h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].placeholder = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.placeholder}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="field col-12">
+            <h5 style={{ marginBottom: "0.5em" }}>{t("Default Value")}</h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].defaultValue = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.defaultValue}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="field col-12">
+            <Checkbox
+              inputId="cb3"
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].rules.required =
+                    !temp[props.index].rules.required;
+                  return temp;
+                });
+              }}
+              checked={props.item.rules.required}
+            ></Checkbox>
+            <span className="ml-3 font-semibold text-xl">Required</span>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-content-between">
+          <Button
+            className="p-button-secondary"
+            label="Options"
+            // icon="pi pi-external-link"
+            onClick={() => setVisibleOptions(true)}
           />
-          <InputText
-            placeholder="Default Value"
-            className="block mb-2"
-            onChange={(e) => {
+          <Button
+            label="Clear Fields"
+            className="p-button-secondary"
+            icon="pi pi-delete-left"
+            onClick={() => {
               props.setItems((prevValue) => {
                 const temp = [...prevValue];
-                temp[props.index].defaultValue = e.target.value;
+                temp[props.index].label = "";
+                temp[props.index].placeholder = "";
+                temp[props.index].defaultValue = "";
+                temp[props.index].rules.required = false;
                 return temp;
               });
             }}
-            value={props.item.defaultValue}
+            autoFocus
           />
         </div>
-        <div className="my-2">
-          <Checkbox
-            inputId="cb1"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].rules.required =
-                  !temp[props.index].rules.required;
-                return temp;
-              });
-            }}
-            checked={props.item.rules.required}
-          ></Checkbox>
-          <label htmlFor="cb1" className="p-checkbox-label ml-2">
-            isRequired
-          </label>
-        </div>
-        <Button
-          className="mt-3 p-button-rounded p-button-secondary"
-          label="Options"
-          // icon="pi pi-external-link"
-          onClick={() => onClick2('displayResponsive2')}
-        />
-      </Dialog>
+      </Sidebar>
+
       <Dialog
         header="Options"
-        visible={displayResponsive2}
-        onHide={() => onHide2('displayResponsive2')}
-        breakpoints={{ '960px': '75vw' }}
-        style={{ width: '30vw' }}
-        footer={renderFooter2('displayResponsive2')}
+        visible={visibleOptions}
+        onHide={() => setVisibleOptions(false)}
+        breakpoints={{ "960px": "75vw" }}
+        style={{ width: "30vw" }}
+        footer={renderFooter2("displayResponsive2")}
       >
         {inputList.map((x, i) => {
           return (
-            <div key={i} className="box">
-              <InputText
-                name="optionsName"
-                placeholder="Enter Option Name"
-                value={x.optionsName}
-                onChange={(e) => handleInputChange(e, i)}
-              />
-              <div className="btn-box">
+            <div key={i} className="formgrid">
+              <div className="field">
+                <InputText
+                  name="optionsName"
+                  placeholder="Enter Option Name"
+                  value={x.optionsName}
+                  onChange={(e) => handleInputChange(e, i)}
+                  style={{ width: "50%" }}
+                />
+
                 {inputList.length !== 1 && (
                   <Button
-                    className="my-2 p-button-rounded p-button-danger"
+                    className="p-button-rounded p-button-danger ml-3"
                     icon="pi pi-trash"
                     onClick={() => handleRemoveClick(i)}
                   ></Button>
                 )}
                 {inputList.length - 1 === i && (
                   <Button
-                    className="my-2 ml-2 p-button-rounded p-button-success"
+                    className="p-button-rounded p-button-success ml-2"
                     icon="pi pi-plus"
                     onClick={handleAddClick}
                   ></Button>
@@ -608,7 +643,10 @@ const DropDownComponent = (props) => {
 const RadioComponent = (props) => {
   const [displayResponsive, setDisplayResponsive] = useState(false);
   const [displayResponsive2, setDisplayResponsive2] = useState(false);
-  const [position, setPosition] = useState('center');
+  const [position, setPosition] = useState("center");
+  const [visibleRight, setVisibleRight] = useState(false);
+  const [visibleOptions, setVisibleOptions] = useState(false);
+  const { t } = useTranslation(["common"]);
 
   //Form property sıralama indeksi
   useEffect(() => {
@@ -619,73 +657,25 @@ const RadioComponent = (props) => {
     });
   }, [props.index]);
 
-  const dialogFuncMap = {
-    displayResponsive: setDisplayResponsive,
-  };
-  const dialogFuncMap2 = {
-    displayResponsive2: setDisplayResponsive2,
-  };
-  const onClick = (name, position) => {
-    dialogFuncMap[`${name}`](true);
-
-    if (position) {
-      setPosition(position);
-    }
-  };
-  const onClick2 = (name, position) => {
-    dialogFuncMap2[`${name}`](true);
-
-    if (position) {
-      setPosition(position);
-    }
-  };
-  const onHide = (name) => {
-    dialogFuncMap[`${name}`](false);
-  };
-  const onHide2 = (name) => {
-    dialogFuncMap2[`${name}`](false);
-  };
-
-  const renderFooter = (name) => {
-    return (
-      <div>
-        <Button
-          label="Cancel"
-          icon="pi pi-times"
-          onClick={() => onHide(name)}
-          className="p-button-text"
-        />
-        <Button
-          label="Save"
-          icon="pi pi-check"
-          onClick={() => onHide(name)}
-          autoFocus
-        />
-      </div>
-    );
-  };
-
   const renderFooter2 = (name) => {
     return (
       <div>
         <Button
           label="Cancel"
           icon="pi pi-times"
-          onClick={() => onHide2(name)}
+          onClick={() => setVisibleOptions(false)}
           className="p-button-text"
         />
         <Button
           label="Save"
           icon="pi pi-check"
-          onClick={() => {
-            props.setItems((prevValue) => {
+          onClick={async () => {
+            await props.setItems((prevValue) => {
               const temp = [...prevValue];
               temp[props.index].options = inputList;
               return temp;
             });
-            setTimeout(() => {
-              onHide2(name);
-            }, 500);
+            await setVisibleOptions(false);
           }}
           autoFocus
         />
@@ -693,7 +683,7 @@ const RadioComponent = (props) => {
     );
   };
 
-  const [inputList, setInputList] = useState([{ optionsName: '' }]);
+  const [inputList, setInputList] = useState([{ optionsName: "" }]);
 
   // handle input change
   const handleInputChange = (e, index) => {
@@ -712,11 +702,11 @@ const RadioComponent = (props) => {
 
   // handle click event of the Add button
   const handleAddClick = () => {
-    setInputList([...inputList, { optionsName: '' }]);
+    setInputList([...inputList, { optionsName: "" }]);
   };
   return (
     <div key={props.index} className="field">
-      <RadioButton disabled placeholder="RadioButton" />
+      {/* <RadioButton disabled placeholder="RadioButton" />
       <span className="ml-2" style={{ color: '#a3a9af' }}>
         RadioButton
       </span>
@@ -758,82 +748,124 @@ const RadioComponent = (props) => {
             ></Checkbox>
           </div>
         )}
-      </div>
+      </div> */}
 
-      <Dialog
-        header="Details"
-        visible={displayResponsive}
-        onHide={() => onHide('displayResponsive')}
-        breakpoints={{ '960px': '75vw' }}
-        style={{ width: '30vw' }}
-        footer={renderFooter('displayResponsive')}
-      >
-        <div>
-          <InputText
-            placeholder="Label"
-            className="block mb-2"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].label = e.target.value;
-                return temp;
-              });
+      <div className="formgrid">
+        <div className="field">
+          <h5>{props.item.label ? props.item.label : "Label"}</h5>
+          <RadioButton disabled style={{ width: "40%" }} />
+          <Button
+            className="p-button-rounded p-button-sm p-button-success ml-3"
+            icon="pi pi-pencil"
+            onClick={() => setVisibleRight(true)}
+          />
+          <Button
+            icon="pi pi-trash"
+            className="p-button-rounded p-button-danger ml-2"
+            onClick={() => {
+              const list = [...props.items];
+              list.splice(props.index, 1);
+              props.setItems(list);
             }}
-            value={props.item.label}
           />
         </div>
-        <div className="my-2">
-          <Checkbox
-            inputId="cb4"
-            onChange={(e) => {
+      </div>
+
+      <Sidebar
+        visible={visibleRight}
+        position="right"
+        style={{ width: "25%" }}
+        onHide={() => setVisibleRight(false)}
+      >
+        <div className="formgrid grid mt-6">
+          <div className="field col-12">
+            <h5 className="required" style={{ marginBottom: "0.5em" }}>
+              {t("Label")}
+            </h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].label = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.label}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="field col-12">
+            <Checkbox
+              inputId="cb4"
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].rules.required =
+                    !temp[props.index].rules.required;
+                  return temp;
+                });
+              }}
+              checked={props.item.rules.required}
+            ></Checkbox>
+            <span className="ml-3 font-semibold text-xl">Required</span>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-content-between">
+          <Button
+            className="p-button-secondary"
+            label="Options"
+            // icon="pi pi-external-link"
+            onClick={() => setVisibleOptions(true)}
+          />
+          <Button
+            label="Clear Fields"
+            className="p-button-secondary"
+            icon="pi pi-delete-left"
+            onClick={() => {
               props.setItems((prevValue) => {
                 const temp = [...prevValue];
-                temp[props.index].rules.required =
-                  !temp[props.index].rules.required;
+                temp[props.index].label = "";
+                temp[props.index].rules.required = false;
                 return temp;
               });
             }}
-            checked={props.item.rules.required}
-          ></Checkbox>
-          <label htmlFor="cb4" className="p-checkbox-label ml-2">
-            isRequired
-          </label>
+            autoFocus
+          />
         </div>
-        <Button
-          className="mt-3 p-button-rounded p-button-secondary"
-          label="Options"
-          // icon="pi pi-external-link"
-          onClick={() => onClick2('displayResponsive2')}
-        />
-      </Dialog>
+      </Sidebar>
+
       <Dialog
         header="Options"
-        visible={displayResponsive2}
-        onHide={() => onHide2('displayResponsive2')}
-        breakpoints={{ '960px': '75vw' }}
-        style={{ width: '30vw' }}
-        footer={renderFooter2('displayResponsive2')}
+        visible={visibleOptions}
+        onHide={() => setVisibleOptions(false)}
+        breakpoints={{ "960px": "75vw" }}
+        style={{ width: "30vw" }}
+        footer={renderFooter2("displayResponsive2")}
       >
         {inputList.map((x, i) => {
           return (
-            <div key={i} className="box">
-              <InputText
-                name="optionsName"
-                placeholder="Enter Option Name"
-                value={x.optionsName}
-                onChange={(e) => handleInputChange(e, i)}
-              />
-              <div className="btn-box">
+            <div key={i} className="formgrid">
+              <div className="field">
+                <InputText
+                  name="optionsName"
+                  placeholder="Enter Option Name"
+                  value={x.optionsName}
+                  onChange={(e) => handleInputChange(e, i)}
+                  style={{ width: "50%" }}
+                />
+
                 {inputList.length !== 1 && (
                   <Button
-                    className="my-2 p-button-rounded p-button-danger"
+                    className="p-button-rounded p-button-danger ml-3"
                     icon="pi pi-trash"
                     onClick={() => handleRemoveClick(i)}
                   ></Button>
                 )}
                 {inputList.length - 1 === i && (
                   <Button
-                    className="my-2 ml-2 p-button-rounded p-button-success"
+                    className="p-button-rounded p-button-success ml-2"
                     icon="pi pi-plus"
                     onClick={handleAddClick}
                   ></Button>
@@ -850,7 +882,9 @@ const RadioComponent = (props) => {
 
 const CheckBoxComponent = (props) => {
   const [displayResponsive, setDisplayResponsive] = useState(false);
-  const [position, setPosition] = useState('center');
+  const [position, setPosition] = useState("center");
+  const [visibleRight, setVisibleRight] = useState(false);
+  const { t } = useTranslation(["common"]);
 
   //Form property sıralama indeksi
   useEffect(() => {
@@ -861,98 +895,107 @@ const CheckBoxComponent = (props) => {
     });
   }, [props.index]);
 
-  const dialogFuncMap = {
-    displayResponsive: setDisplayResponsive,
-  };
-  const onClick = (name, position) => {
-    dialogFuncMap[`${name}`](true);
-
-    if (position) {
-      setPosition(position);
-    }
-  };
-
-  const onHide = (name) => {
-    dialogFuncMap[`${name}`](false);
-  };
-
-  const renderFooter = (name) => {
-    return (
-      <div>
-        <Button
-          label="Cancel"
-          icon="pi pi-times"
-          onClick={() => onHide(name)}
-          className="p-button-text"
-        />
-        <Button
-          label="Save"
-          icon="pi pi-check"
-          onClick={() => onHide(name)}
-          autoFocus
-        />
-      </div>
-    );
-  };
   return (
     <div key={props.index} className="field">
-      <Dialog
-        header="Details"
-        visible={displayResponsive}
-        onHide={() => onHide('displayResponsive')}
-        breakpoints={{ '960px': '75vw' }}
-        style={{ width: '30vw' }}
-        footer={renderFooter('displayResponsive')}
+      <Sidebar
+        visible={visibleRight}
+        position="right"
+        style={{ width: "25%" }}
+        onHide={() => setVisibleRight(false)}
       >
-        <div>
-          <InputText
-            placeholder="Label"
-            className="block mb-2"
-            onChange={(e) => {
+        <div className="formgrid grid mt-6">
+          <div className="field col-12">
+            <h5 className="required" style={{ marginBottom: "0.5em" }}>
+              {t("Label")}
+            </h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].label = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.label}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="field col-12">
+            <h5 className="required" style={{ marginBottom: "0.5em" }}>
+              {t("Text")}
+            </h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].label2 = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.label2}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="field col-12">
+            <Checkbox
+              inputId="cb5"
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].rules.required =
+                    !temp[props.index].rules.required;
+                  return temp;
+                });
+              }}
+              checked={props.item.rules.required}
+            ></Checkbox>
+            <span className="ml-3 font-semibold text-xl">Required</span>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-content-end">
+          <Button
+            label="Clear Fields"
+            className="p-button-secondary"
+            icon="pi pi-delete-left"
+            onClick={() => {
               props.setItems((prevValue) => {
                 const temp = [...prevValue];
-                temp[props.index].label = e.target.value;
+                temp[props.index].label = "";
+                temp[props.index].label2 = "";
+                temp[props.index].rules.required = false;
                 return temp;
               });
             }}
-            value={props.item.label}
-          />
-          <InputText
-            placeholder="Checkbox Label"
-            className="block mb-2"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].label2 = e.target.value;
-                return temp;
-              });
-            }}
-            value={props.item.label2}
+            autoFocus
           />
         </div>
-        <div className="my-2">
-          <Checkbox
-            inputId="cb5"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].rules.required =
-                  !temp[props.index].rules.required;
-                return temp;
-              });
+      </Sidebar>
+
+      <div className="formgrid">
+        <div className="field">
+          <h5>{props.item.label ? props.item.label : "Label"}</h5>
+          <Checkbox disabled style={{ width: "40%" }} />
+          <Button
+            className="p-button-rounded p-button-sm p-button-success ml-3"
+            icon="pi pi-pencil"
+            onClick={() => setVisibleRight(true)}
+          />
+          <Button
+            icon="pi pi-trash"
+            className="p-button-rounded p-button-danger ml-2"
+            onClick={() => {
+              const list = [...props.items];
+              list.splice(props.index, 1);
+              props.setItems(list);
             }}
-            checked={props.item.rules.required}
-          ></Checkbox>
-          <label htmlFor="cb5" className="p-checkbox-label ml-2">
-            isRequired
-          </label>
+          />
         </div>
-      </Dialog>
-      <Checkbox disabled></Checkbox>{' '}
-      <span className="ml-2" style={{ color: '#a3a9af' }}>
-        Checkbox
-      </span>
-      <div className="flex justify-content-between mt-2">
+      </div>
+
+      {/* <div className="flex justify-content-between mt-2">
         <div>
           <Button
             className="p-button-rounded p-button-sm  p-button-secondary"
@@ -990,14 +1033,16 @@ const CheckBoxComponent = (props) => {
             ></Checkbox>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };
 
 const DateComponent = (props) => {
   const [displayResponsive, setDisplayResponsive] = useState(false);
-  const [position, setPosition] = useState('center');
+  const [position, setPosition] = useState("center");
+  const [visibleRight, setVisibleRight] = useState(false);
+  const { t } = useTranslation(["common"]);
 
   //Form property sıralama indeksi
   useEffect(() => {
@@ -1008,97 +1053,110 @@ const DateComponent = (props) => {
     });
   }, [props.index]);
 
-  const dialogFuncMap = {
-    displayResponsive: setDisplayResponsive,
-  };
-  const onClick = (name, position) => {
-    dialogFuncMap[`${name}`](true);
-
-    if (position) {
-      setPosition(position);
-    }
-  };
-
-  const onHide = (name) => {
-    dialogFuncMap[`${name}`](false);
-  };
-
-  const renderFooter = (name) => {
-    return (
-      <div>
-        <Button
-          label="Cancel"
-          icon="pi pi-times"
-          onClick={() => onHide(name)}
-          className="p-button-text"
-        />
-        <Button
-          label="Save"
-          icon="pi pi-check"
-          onClick={() => onHide(name)}
-          autoFocus
-        />
-      </div>
-    );
-  };
   return (
     <div key={props.index} className="field">
-      <Dialog
-        header="Details"
-        visible={displayResponsive}
-        onHide={() => onHide('displayResponsive')}
-        breakpoints={{ '960px': '75vw' }}
-        style={{ width: '30vw' }}
-        footer={renderFooter('displayResponsive')}
+      <Sidebar
+        visible={visibleRight}
+        position="right"
+        style={{ width: "25%" }}
+        onHide={() => setVisibleRight(false)}
       >
-        <div>
-          <InputText
-            placeholder="Label"
-            className="block mb-2"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].label = e.target.value;
-                return temp;
-              });
-            }}
-            value={props.item.label}
-          />
+        <div className="formgrid grid mt-6">
+          <div className="field col-12">
+            <h5 className="required" style={{ marginBottom: "0.5em" }}>
+              {t("Label")}
+            </h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].label = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.label}
+              style={{ width: "100%" }}
+            />
+          </div>
 
-          <InputText
-            placeholder="Placeholder"
-            className="block mb-2"
-            onChange={(e) => {
+          <div className="field col-12">
+            <h5 style={{ marginBottom: "0.5em" }}>{t("Placeholder")}</h5>
+            <InputText
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].placeholder = e.target.value;
+                  return temp;
+                });
+              }}
+              value={props.item.placeholder}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="field col-12">
+            <Checkbox
+              inputId="cb6"
+              onChange={(e) => {
+                props.setItems((prevValue) => {
+                  const temp = [...prevValue];
+                  temp[props.index].rules.required =
+                    !temp[props.index].rules.required;
+                  return temp;
+                });
+              }}
+              checked={props.item.rules.required}
+            ></Checkbox>
+            <span className="ml-3 font-semibold text-xl">Required</span>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-content-end">
+          <Button
+            label="Clear Fields"
+            className="p-button-secondary"
+            icon="pi pi-delete-left"
+            onClick={() => {
               props.setItems((prevValue) => {
                 const temp = [...prevValue];
-                temp[props.index].placeholder = e.target.value;
+                temp[props.index].label = "";
+                temp[props.index].placeholder = "";
+                temp[props.index].rules.required = false;
                 return temp;
               });
             }}
-            value={props.item.placeholder}
+            autoFocus
           />
         </div>
-        <div className="my-2">
-          <Checkbox
-            inputId="cb6"
-            onChange={(e) => {
-              props.setItems((prevValue) => {
-                const temp = [...prevValue];
-                temp[props.index].rules.required =
-                  !temp[props.index].rules.required;
-                return temp;
-              });
-            }}
-            checked={props.item.rules.required}
-          ></Checkbox>
-          <label htmlFor="cb6" className="p-checkbox-label ml-2">
-            isRequired
-          </label>
-        </div>
-      </Dialog>
+      </Sidebar>
 
-      <Calendar disabled placeholder="Date" showIcon style={{ width: 250 }} />
-      <div className="flex justify-content-between mt-2">
+      <div className="formgrid">
+        <div className="field">
+          <h5>{props.item.label ? props.item.label : "Label"}</h5>
+          <Calendar
+            disabled
+            placeholder="Date"
+            showIcon
+            style={{ width: "40%" }}
+          />
+          <Button
+            className="p-button-rounded p-button-sm p-button-success ml-3"
+            icon="pi pi-pencil"
+            onClick={() => setVisibleRight(true)}
+          />
+          <Button
+            icon="pi pi-trash"
+            className="p-button-rounded p-button-danger ml-2"
+            onClick={() => {
+              const list = [...props.items];
+              list.splice(props.index, 1);
+              props.setItems(list);
+            }}
+          />
+        </div>
+      </div>
+
+      {/* <div className="flex justify-content-between mt-2">
         <div>
           <Button
             className="p-button-rounded p-button-sm  p-button-secondary"
@@ -1136,7 +1194,7 @@ const DateComponent = (props) => {
             ></Checkbox>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -1146,7 +1204,7 @@ const DropZone = (props) => {
 
   const renderItem = (item, index) => {
     switch (item.type) {
-      case 'text':
+      case "text":
         return (
           <InputComponent
             item={item}
@@ -1155,7 +1213,7 @@ const DropZone = (props) => {
             items={props.items}
           />
         );
-      case 'textarea':
+      case "textarea":
         return (
           <InputTextareaComponent
             item={item}
@@ -1164,7 +1222,7 @@ const DropZone = (props) => {
             items={props.items}
           />
         );
-      case 'dropdown':
+      case "dropdown":
         return (
           <DropDownComponent
             item={item}
@@ -1173,7 +1231,7 @@ const DropZone = (props) => {
             items={props.items}
           />
         );
-      case 'radio':
+      case "radio":
         return (
           <RadioComponent
             item={item}
@@ -1182,7 +1240,7 @@ const DropZone = (props) => {
             items={props.items}
           />
         );
-      case 'checkbox':
+      case "checkbox":
         return (
           <CheckBoxComponent
             item={item}
@@ -1191,7 +1249,7 @@ const DropZone = (props) => {
             items={props.items}
           />
         );
-      case 'date':
+      case "date":
         return (
           <DateComponent
             item={item}
@@ -1200,7 +1258,7 @@ const DropZone = (props) => {
             items={props.items}
           />
         );
-      case 'cities':
+      case "cities":
         return (
           <CitiesComponent
             item={item}
@@ -1209,7 +1267,7 @@ const DropZone = (props) => {
             items={props.items}
           />
         );
-      case 'gender':
+      case "gender":
         return (
           <GenderComponent
             item={item}
@@ -1218,6 +1276,24 @@ const DropZone = (props) => {
             items={props.items}
           />
         );
+      // case "spaceList":
+      //   return (
+      //     <SpaceField
+      //       item={item}
+      //       index={index}
+      //       setItems={props.setItems}
+      //       items={props.items}
+      //     />
+      //   );
+      // case "contactList":
+      //   return (
+      //     <ContactField
+      //       item={item}
+      //       index={index}
+      //       setItems={props.setItems}
+      //       items={props.items}
+      //     />
+      //   );
       default:
         break;
     }
@@ -1233,7 +1309,7 @@ const DropZone = (props) => {
           <div
             style={{
               minHeight: 500,
-              backgroundColor: snapshot.isDraggingOver ? '#f5f5f5' : '',
+              backgroundColor: snapshot.isDraggingOver ? "#f5f5f5" : "",
             }}
             ref={provided.innerRef}
             isDraggingOver={snapshot.isDraggingOver}
@@ -1241,7 +1317,7 @@ const DropZone = (props) => {
             {props.items.length > 0
               ? props.items.map((item, index) => (
                   <DraggableItem
-                    key={'di' + index}
+                    key={"di" + index}
                     item={item}
                     index={index}
                     hoverdCompId={hoverdCompId}
@@ -1252,9 +1328,9 @@ const DropZone = (props) => {
               : !snapshot.isDraggingOver && (
                   <div
                     style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                       minHeight: 500,
                     }}
                   >

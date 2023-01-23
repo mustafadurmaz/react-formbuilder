@@ -5,7 +5,7 @@ import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
 import { v4 as uuid } from 'uuid';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
 
 import Toolbox from './ToolBox';
 import Toolbox2 from './ToolBox2';
@@ -205,20 +205,20 @@ function FormBuilder() {
                         });
                       } else {
                         if (dataNeo4j.length > 0) {
-                          WorkSpaceService.createProperty(dataNeo4j)
-                            .then((res) => {
-                              navigate('/formtree');
-                            })
-                            .catch((err) => {
-                              toast.current.show({
-                                severity: 'error',
-                                summary: 'Error',
-                                detail: err.response
-                                  ? err.response.data.message
-                                  : err.message,
-                                life: 2000,
-                              });
-                            });
+                          // WorkSpaceService.createProperty(dataNeo4j)
+                          //   .then((res) => {
+                          //     navigate('/formtree');
+                          //   })
+                          //   .catch((err) => {
+                          //     toast.current.show({
+                          //       severity: 'error',
+                          //       summary: 'Error',
+                          //       detail: err.response
+                          //         ? err.response.data.message
+                          //         : err.message,
+                          //       life: 2000,
+                          //     });
+                          //   });
                         }
                       }
                     }
