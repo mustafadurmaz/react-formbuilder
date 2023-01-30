@@ -1,66 +1,79 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
-import { Toast } from 'primereact/toast';
-import { Dialog } from 'primereact/dialog';
-import { v4 as uuid } from 'uuid';
-import { DragDropContext } from 'react-beautiful-dnd';
-import { useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useLayoutEffect } from "react";
+import { Button } from "primereact/button";
+import { Card } from "primereact/card";
+import { Dialog } from "primereact/dialog";
+import { v4 as uuid } from "uuid";
+import { DragDropContext } from "react-beautiful-dnd";
+import {
+  useNavigate,
+  useLocation,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-import Toolbox from './ToolBox';
-import Toolbox2 from './ToolBox2';
-import DropZone from './DropZone';
-import ITEMS from './Items';
-import ITEMS2 from './Items2';
-import FormGenerateDemo from '../FormGenerateDemo/FormGenerateDemo';
-import FormPropertiesService from '../../services/formProperties';
+import FormTreeService from "../../../services/formTree";
+import Toolbox from "./ToolBox";
+import Toolbox2 from "./ToolBox2";
+import DropZone from "./DropZone";
+import ITEMS from "./Items";
+import ITEMS2 from "./Items2";
+import FormGenerateDemo from "../FormPreview/FormPreview";
+import useToast from "../../../hooks/useToast";
 
 function FormBuilder() {
   const [items, setItems] = useState([]);
   const [formName, setFormName] = useState("");
   const [parentId, setParentId] = useState("");
   const [label, setLabel] = useState("");
-  const toast = React.useRef(null);
-  const navigate = useNavigate();
+  const [code, setCode] = useState("");
   const [visibleFormPreview, setVisibleFormPreview] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation(["common"]);
 
-  const params = useLocation();
-  const paramsId = useParams();
-  console.log(params);
-  console.log(paramsId);
- 
   useLayoutEffect(() => {
     setFormName(searchParams.get("name"));
     setParentId(searchParams.get("id"));
     setLabel(searchParams.get("label"));
+    setCode(searchParams.get("code"));
   }, []);
 
   useEffect(() => {
-    // FormPropertiesService.getProperties(paramsId.id)
-    //   .then((res) => {
-    //     console.log(res.data);
+    if (code !== "") {
+      let params = {};
 
-    //     const convertedData = res.data.map(function (item) {
-    //       return {
-    //         ...item,
-    //         rules: { required: item.rules[0] },
-    //         options: item.options.map(function (option) {
-    //           return { optionsName: option };
-    //         }),
-    //       };
-    //     });
-    //     setItems(convertedData);
-    //   })
-    //   .catch((err) => {
-    //     toast.current.show({
-    //       severity: 'error',
-    //       summary: 'Error',
-    //       detail: err.response ? err.response.data.message : err.message,
-    //       life: 2000,
-    //     });
-    //   });
-  }, [paramsId.id]);
+      params = {
+        label: ["Tasks"],
+        code: code,
+      };
+      FormTreeService.findProperties(params)
+        .then((res) => {
+          console.log(res.data);
+          const convertedData = res.data.type.children.map(function (item) {
+            return {
+              ...item,
+              type: item.inputType,
+              rules: { required: item.rules[0] },
+              options: item.options.map(function (option) {
+                return { optionsName: option };
+              }),
+            };
+          });
+          console.log(convertedData);
+          setItems(convertedData);
+        })
+        .catch((err) => {
+          toast.current.show({
+            severity: "error",
+            summary: "Error",
+            detail: err.response ? err.response.data.message : err.message,
+            life: 2000,
+          });
+        });
+    }
+  }, [code]);
 
   const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -75,7 +88,7 @@ function FormBuilder() {
     destination,
     droppableSource,
     droppableDestination,
-    isBase,
+    isBase
   ) => {
     const sourceClone = Array.from(source);
     const destClone = Array.from(destination);
@@ -84,24 +97,24 @@ function FormBuilder() {
     if (isBase) {
       destClone.splice(droppableDestination.index, 0, {
         type: item.type,
-        label: '',
-        defaultValue: '',
+        label: "",
+        defaultValue: "",
         rules: { required: false },
         // rules: [false],
-        tag: ['deneme'],
+        tag: ["deneme"],
         typeId: uuid(),
         key: uuid(),
-        labelclass: 'TypeProperty',
+        labelclass: "TypeProperty",
         options: [],
         isActive: true,
-        placeholder: '',
-        label2: '',
-        index: '',
-        description: '',
-        otherDataSource: '',
+        placeholder: "",
+        label2: "",
+        index: "",
+        description: "",
+        otherDataSource: "",
       });
     } else {
-      console.log('Droppable dest ', droppableDestination);
+      console.log("Droppable dest ", droppableDestination);
     }
     return destClone;
   };
@@ -116,13 +129,13 @@ function FormBuilder() {
     switch (source.droppableId) {
       case destination.droppableId:
         setItems((prevValue) =>
-          reorder(prevValue, source.index, destination.index),
+          reorder(prevValue, source.index, destination.index)
         );
         break;
-      case 'Toolbox':
+      case "Toolbox":
         setItems(copy(ITEMS, items, source, destination, true));
         break;
-      case 'Toolbox2':
+      case "Toolbox2":
         setItems(copy(ITEMS2, items, source, destination, true));
         break;
       default:
@@ -132,10 +145,12 @@ function FormBuilder() {
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Toast ref={toast} position="top-right" />
       <div className="grid">
         <div className="col-2">
           <Toolbox />
+        </div>
+        <div className="col-2">
+          <Toolbox2 />
         </div>
         <div className="col-7">
           <div className="field">
@@ -144,7 +159,7 @@ function FormBuilder() {
               <div>
                 <Button
                   className="p-button-warning"
-                  label="Form Show"
+                  label="Form Preview"
                   icon="pi pi-book"
                   onClick={() => setVisibleFormPreview(true)}
                 />
@@ -157,19 +172,19 @@ function FormBuilder() {
                     // console.log(dataNeo4j);
                     const dataNeo4j = data.map((item) => {
                       return {
-                        identifierLabelDto:{
-                          identifier:parentId,
-                          label:label
+                        identifierLabelDto: {
+                          identifier: parentId,
+                          label: [label],
                         },
                         label: item.label,
-                        variableDataType:"string",
+                        variableDataType: "string",
                         inputType: item.type,
                         otherDataSource: item.otherDataSource,
                         tag: item.tag,
                         defaultValue: item.defaultValue,
                         rules: [item.rules.required],
                         options: item.options?.map(
-                          (option) => option.optionsName,
+                          (option) => option.optionsName
                         ),
                         // isActive: item.isActive,
                         placeholder: item.placeholder,
@@ -184,11 +199,11 @@ function FormBuilder() {
                       return new Set(array).size !== array.length;
                     }
                     //property label girili değilse uyarı ver
-                    if (dataNeo4j.map((item) => item.label).includes('')) {
+                    if (dataNeo4j.map((item) => item.label).includes("")) {
                       toast.current.show({
-                        severity: 'error',
-                        summary: 'Error Message',
-                        detail: 'Please fill all the property labels',
+                        severity: "error",
+                        summary: "Error Message",
+                        detail: "Please fill all the property labels",
                         life: 4000,
                       });
                     } else {
@@ -198,27 +213,33 @@ function FormBuilder() {
                         true
                       ) {
                         toast.current.show({
-                          severity: 'error',
-                          summary: 'Error Message',
-                          detail: 'Please fill different property labels',
+                          severity: "error",
+                          summary: "Error Message",
+                          detail: "Please fill different property labels",
                           life: 4000,
                         });
                       } else {
                         if (dataNeo4j.length > 0) {
-                          // WorkSpaceService.createProperty(dataNeo4j)
-                          //   .then((res) => {
-                          //     navigate('/formtree');
-                          //   })
-                          //   .catch((err) => {
-                          //     toast.current.show({
-                          //       severity: 'error',
-                          //       summary: 'Error',
-                          //       detail: err.response
-                          //         ? err.response.data.message
-                          //         : err.message,
-                          //       life: 2000,
-                          //     });
-                          //   });
+                          FormTreeService.createProperty(dataNeo4j)
+                            .then((res) => {
+                              toast.current.show({
+                                severity: "success",
+                                summary: t("Successful"),
+                                detail: t("Form Properties Created"),
+                                life: 3000,
+                              });
+                              navigate("/formtree");
+                            })
+                            .catch((err) => {
+                              toast.current.show({
+                                severity: "error",
+                                summary: "Error",
+                                detail: err.response
+                                  ? err.response.data.message
+                                  : err.message,
+                                life: 2000,
+                              });
+                            });
                         }
                       }
                     }
@@ -229,7 +250,7 @@ function FormBuilder() {
                 <Button
                   className="p-button-danger ml-2"
                   onClick={() => {
-                    navigate('/formtree');
+                    navigate("/formtree");
                   }}
                 >
                   Cancel
@@ -241,18 +262,16 @@ function FormBuilder() {
             <DropZone droppableId="form" items={items} setItems={setItems} />
           </Card>
         </div>
-        <div className="col-2">
-          <Toolbox2 />
-          <Dialog
-            header={formName}
-            visible={visibleFormPreview}
-            onHide={() => setVisibleFormPreview(false)}
-            breakpoints={{ '960px': '75vw' }}
-            style={{ width: '40vw' }}
-          >
-            <FormGenerateDemo items={items} />
-          </Dialog>
-        </div>
+
+        <Dialog
+          header={formName}
+          visible={visibleFormPreview}
+          onHide={() => setVisibleFormPreview(false)}
+          breakpoints={{ "960px": "75vw" }}
+          style={{ width: "40vw" }}
+        >
+          <FormGenerateDemo items={items} />
+        </Dialog>
       </div>
     </DragDropContext>
   );
